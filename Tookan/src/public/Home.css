@@ -1,0 +1,64 @@
+body {
+  margin: 5px;
+}
+#boxhead {
+  text-align: center;
+}
+#head {
+  font-size: 50px;
+  color: red;
+}
+
+#left,
+#right,
+#center {
+  height: 90vh;
+  float: left;
+}
+#left {
+  width: 20%;
+  background-color: #EEE;
+}
+.boxtitle {
+  width: 100%;
+  background-color: #333;
+  padding: 20px 0px;
+  margin-bottom: 30px;
+}
+.title {
+  color: cornsilk;
+  font-size: 25px;
+  font-weight: bold;
+  text-align: center;
+  margin: 0px;
+}
+#right {
+  width: 20%;
+  background-color: #EEE;
+}
+#center {
+  width: 60%;
+  background-color: #FFF;
+}
+#abc {
+  /* padding-left: 1%; */
+}
+.itemcenter {
+  float: left;
+  width: 45%;
+  height: 90%;
+  padding: 2%;
+}
+#nametask{
+    width: 270px;
+    height: 40px;
+}
+#btncreate{
+    width: 80px;
+    height: 40px;
+}
+#userlist, #tasklist{
+    width: 250px;
+    height:30px;
+    margin-bottom: 20px;
+}
