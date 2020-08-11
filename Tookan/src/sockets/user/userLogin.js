@@ -7,12 +7,6 @@ let userLogin = (io) => {
     
     socket.on("agent-login", data => {
      
-      // let user = {
-      //   id: data.id
-      // };
-      // socket.user = user;
-      // clients.push(user);
-      // console.log(clients);
       clients = pushSocketIdToArray(clients, data.id, socket.id);
       console.log(clients);
       //Gửi thông báo cho website khi agent đăng nhập
@@ -22,20 +16,16 @@ let userLogin = (io) => {
         username: data.username,
         message: `${data.username} đăng nhập.`
       };
-      
-      // let agentUser = $(
-      //   `<li class="user_${data.id}" " data-mess-id="${data.id}"></li>`
-      // );
+
       let userID = {
         userID: data.id,
         username: data.username,
         socketId: socket.id,
         event: "Đăng nhập: " + Date(Date.now())
-      }
+      };
 
-      if (clients[data.id]) {
-        socket.emit("send-list-user-online", userID);
-      }
+     // let emitNotifyToArray = clients[socket.id].forEach(socketId => io.sockets.connected[socketId].emit("send-list-user-online", userID));
+      socket.emit("send-list-user-online", userID); 
 
       if (clients[data.id]) {
         //emitNotifyToArray(clients, "25", io, "send-notif-user-login", dataToEmit);

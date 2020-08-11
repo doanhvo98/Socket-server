@@ -18,58 +18,74 @@ let server = http.createServer(app);
 
 let io = socketio(server);
 
+var AdminRoom  = io.of('/admin-room');
+var AgentRoom  = io.of('/agent-room');
+var ServerRoom = io.of('/server-room');
+
 configViewEngine(app);
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(connectFlash());
 app.use(cookieParser());
-initSockets(io);
+// initSockets(io);
+
+let clients = {};
+
+var sameEvent = function(io,tag) {
+  console.log('--a user connected to ' + tag + ' --' + io.id);
+  io.on('get message',function(msg){
+    io.emit('get message',tag +msg);
+  });
+ 
+  io.on('disconnect', function () {
+    console.log('--a user disconnected from '+tag);
+  });
+  return io;
+}
+ 
+ServerRoom.on('connection', function (socket) {
+  socket = sameEvent(socket,'Server Room >');
+  socket.on('private event', function (msg) {
+    socket.emit('private event',msg);
+  });
+  
+});
+
+AgentRoom.on('connection', function (socket) {
+  socket = sameEvent(socket,'Agent Room > ');
+
+  socket.on("agent-login", data => {
+
+    console.log(data);
+    clients = pushSocketIdToArray(clients, data.id, socket.id);
+    console.log(clients);
+
+    let dataToEmit = {
+      id: data.id,
+      socketId: socket.id,
+      username: data.username,
+      message: `${data.username} đăng nhập.`
+    };
+
+    let userID = {
+      userID: data.id,
+      username: data.username,
+      socketId: socket.id,
+      event: "Đăng nhập: " + Date(Date.now())
+    };
+
+    io.of("/server-room").emit("send-list-user-online", userID); 
+   //socket.emit("send-list-user-online", userID); 
+
+    io.of("/admin-room").emit("send-notif-user-login", dataToEmit);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("Nhân viên: "+socket.id+" ngừng kết nối" );
+  });
+}); 
 
 app.get("/", function (req, res) {
   res.render("index");
-});
-
-io.on("connection", (socket) => {
-  console.log("co nguoi ket noi : " + socket.id);
-
-  let clients = {};
-
-  // socket.on("agent-login", data => {
-  //   console.log(data);
-  //   clients = pushSocketIdToArray(clients, data.id, socket.id);
-  //   console.log(clients);
-    
-  //   //Gửi thông báo cho website khi agent đăng nhập
-  //   let dataToEmit = {
-  //     id: data.id,
-  //     username: data.username,
-  //     message: `${data.username} đăng nhập.`
-  //   };
-
-  //   socket.emit("send-notif-user-login", dataToEmit);
-  // });
-
-  // socket.on("new-task-created", function(data) {
-  //   let response = {
-  //     taskId: data.Id,
-  //     startBefore: data.start_before,
-  //     completeBefore: data.complete_before,
-  //     customerName: data.name,
-  //     address: data.address,
-  //     status: data.status,
-  //     comment: data.notes,
-  //     orderId: data.order_id
-  //   };
-  //   console.log(response);
-  //   //Socket send Task data to agent
-  //   socket.emit("send-task-to-agent", response);
-  // });
-
-  socket.emit("send-client", "hello");
-
-  socket.on("disconnect", () => {
-    //clients = removeSocketIdFromArray(clients, socket.request.user.id, socket);
-    console.log("nguoi ngat ket noi: " + socket.id);
-  });
 });
 
 server.listen(process.env.APP_PORT, process.env.APP_HOST, () => {
